@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Distance Between Cities</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.3/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.3.3/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.geodesic@2.5.4/dist/leaflet.geodesic.umd.min.js"></script>
+</head>   
+<body>
+<p>There are <strong id="totaldistancemiles"></strong> or <strong id="totaldistancekm"></strong> between <strong id="distFromAddr"></strong> and <strong id="distToAddr"></strong>.</p>
+<div id="map" style="width:770px;height:600px;border:1px solid #cdcdcd;">
+<script>
+function handleLocation(lat1,lon1,lat2,lon2) {
+
+var mymap = L.map('map');
+
+mymap.setView([lat1,lon1], 6);
+
+var mmr1 = L.marker([lat1,lon1]);
+mmr1.bindPopup(lat1,lon1);
+mmr1.addTo(mymap);
+
+var mmr2 = L.marker([lat2,lon2]);
+mmr2.bindPopup(lat2,lon2);
+mmr2.addTo(mymap);
+
+var Geodesic = L.geodesic([[mmr1.getLatLng(), mmr2.getLatLng()]], {
+			weight: 4,
+			opacity: 0.4,
+			color: 'red',
+			steps: 50
+		}).addTo(mymap);
+  
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar',
+attribution:'&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'}).addTo(mymap);
+
+mmr1.bindPopup("New York");
+mmr2.bindPopup("Rochester");
+
+
+mymap.fitBounds(L.latLngBounds(mmr1.getLatLng(), mmr2.getLatLng()));
+
+Geodesic.update = function () {
+	Geodesic.setLatLngs([[mmr1.getLatLng(), mmr2.getLatLng()]]);
+};
+
+Geodesic.update();
+var dist = mmr1.getLatLng().distanceTo(mmr2.getLatLng()) / 1000;
+var e = 0.621371192 * dist;
+document.getElementById("totaldistancekm").innerHTML = dist.toFixed(2) + " km";
+document.getElementById("totaldistancemiles").innerHTML = e.toFixed(2) + " miles";
+document.getElementById("distFromAddr").innerHTML = "New York";
+document.getElementById("distToAddr").innerHTML = "Rochester";
+
+}
+
+handleLocation('43.000000','-75.000000','43.161030','-77.610924');
+</script>
+</body>
+</html>
